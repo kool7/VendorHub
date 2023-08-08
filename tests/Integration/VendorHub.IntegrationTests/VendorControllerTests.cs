@@ -35,7 +35,7 @@ public class VendorControllerTests
     }
 
     [Fact]
-    public async Task CreateVendor_InvalidInput_EndpointReturnsBadRequest()
+    public async Task CreateVendor_Failure_EndpointReturnsBadRequest()
     {
         // Arrange
         var vendorDto = new CreateVendorDto

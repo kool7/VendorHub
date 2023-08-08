@@ -61,6 +61,15 @@ namespace VendorHub.Api.Common {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Vendor with the name {0} already exists..
+        /// </summary>
+        public static string VendorAlreadyExists {
+            get {
+                return ResourceManager.GetString("VendorAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The Description field is required..
         /// </summary>
         public static string VendorDescriptionRequired {

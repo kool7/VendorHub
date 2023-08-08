@@ -8,6 +8,13 @@ namespace VendorHub.Api.Controllers;
 [Route(ApiRoutes.Vendors)]
 public class VendorsController : ControllerBase
 {
+    private readonly IVendorService _vendorService;
+
+    public VendorsController(IVendorService vendorService)
+    {
+        _vendorService = vendorService;
+    }
+
     [HttpPost]
     public IActionResult CreateVendor(CreateVendorDto createVendorDto)
     {
