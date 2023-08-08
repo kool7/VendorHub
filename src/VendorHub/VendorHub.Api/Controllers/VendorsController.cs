@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
+using VendorHub.Api.Common;
 using VendorHub.Application.Contracts.Vendors;
 
 namespace VendorHub.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route(ApiRoutes.Vendors)]
 public class VendorsController : ControllerBase
 {
     [HttpPost]

@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
 using System.Net.Http.Json;
 using VendorHub.Api.Common;
@@ -27,7 +26,7 @@ public class VendorControllerTests
         var createVendorDto = _fixture.Create<CreateVendorDto>();
 
         // Act
-        var response = await _httpClient.PostAsJsonAsync(VendorHubConstants.CreateVendor, createVendorDto);
+        var response = await _httpClient.PostAsJsonAsync(ApiRoutes.Vendors, createVendorDto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -46,7 +45,7 @@ public class VendorControllerTests
         };
 
         // Act
-        var response = await _httpClient.PostAsJsonAsync(VendorHubConstants.CreateVendor, vendorDto);
+        var response = await _httpClient.PostAsJsonAsync(ApiRoutes.Vendors, vendorDto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
