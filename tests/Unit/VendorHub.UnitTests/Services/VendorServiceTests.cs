@@ -1,8 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using VendorHub.Api.Common;
-using VendorHub.Application.Contracts.Vendors;
+﻿using MongoDB.Bson;
+using VendorHub.Application.Contracts.Validations.Vendors;
 using VendorHub.Application.Vendors;
 using VendorHub.Domain.Vendors;
+using VendorHub.Utils;
 
 namespace VendorHub.UnitTests.Services
 {
@@ -11,66 +11,120 @@ namespace VendorHub.UnitTests.Services
         private readonly Fixture _fixture;
         private readonly Mock<IVendorRepository> _mockVendorRepository;
         private readonly VendorService _sutVendorService;
+        private readonly CreateVendorDtoValidator _createVendorDtoValidator;
 
         public VendorServiceTests()
         {
             _fixture = new Fixture();
             _mockVendorRepository = new Mock<IVendorRepository>();
-            _sutVendorService = new VendorService(_mockVendorRepository.Object);
+            _createVendorDtoValidator = new CreateVendorDtoValidator();
+            _sutVendorService = new VendorService(_mockVendorRepository.Object, _createVendorDtoValidator);
         }
 
         [Fact]
         public async Task CreateVendorAsync_ValidInput_ReturnsVendor()
         {
             // Assert
-            var vendor = _fixture.Create<Vendor>();
-            var createVendorDto = _fixture.Create<CreateVendorDto>();
+            var createVendorDto = VendorHubFixtures.GenerateCreateVendorDto();
+            var vendor = _fixture.Build<Vendor>()
+                                 .Without(p => p.Id)
+                                 .Do(x => x.Id = ObjectId.GenerateNewId().ToString())
+                                 .With(x => x.Name, createVendorDto.Name)
+                                 .With(x => x.Description, createVendorDto.Description)
+                                 .Create();
+
             _mockVendorRepository
-                .Setup(repo => repo.AddAsync(vendor))
+                .Setup(repo => repo.CreateAsync(vendor))
                 .ReturnsAsync(vendor);
 
             // Act
-            var result = _sutVendorService.CreateVendorAsync(createVendorDto);
+            var result = await _sutVendorService.CreateAsync(createVendorDto);
 
             // Arrange
-            result.Should().BeEquivalentTo(vendor);
-            _mockVendorRepository.Verify(repo => repo.AddAsync(vendor), Times.Once);
+            result.IsSuccess.Should().BeTrue();
+            result.Data.Should().BeEquivalentTo(vendor);
+            _mockVendorRepository.Verify(repo => repo.CreateAsync(vendor), Times.Once);
         }
 
         [Fact]
-        public async Task CreateVendorAsync_InValidInput_ThrowValidationException()
+        public async Task CreateVendorAsync_NamerRequired_ThrowValidationException()
         {
             // Arrange
-            var createVendorDto = new CreateVendorDto
-            {
+            var createVendorDto = VendorHubFixtures.GenerateCreateVendorDtoWithoutName();
 
-            };
-
-            var vendor = new Vendor
-            {
-
-            };
+            var vendor = _fixture.Create<Vendor>();
 
             // Act
-            Func<Task> act = async () => await _sutVendorService.CreateVendorAsync(createVendorDto);
+            var result = await _sutVendorService.CreateAsync(createVendorDto);
 
-            await act.Should().ThrowAsync<ValidationException>()
-                .WithMessage(VendorHubResponse.VendorNameRequired)
-                .WithMessage(VendorHubResponse.VendorDescriptionRequired);
-            _mockVendorRepository.Verify(repo => repo.AddAsync(vendor), Times.Never);
+            // Assert
+            result.IsSuccess.Should().BeFalse();
+            result.HasErrors.Should().Contain(VendorHubResponse.VendorNameRequired);
+            _mockVendorRepository.Verify(repo => repo.CreateAsync(vendor), Times.Never);
+        }
+
+        [Fact]
+        public async Task CreateVendorAsync_MaxNameLimit_ThrowValidationException()
+        {
+            // Arrange
+            var createVendorDto = VendorHubFixtures.GenerateDtoWithVendorNameMoreThanMaxCharLimit();
+
+            var vendor = _fixture.Create<Vendor>();
+
+            // Act
+            var result = await _sutVendorService.CreateAsync(createVendorDto);
+
+            // Assert
+            result.IsSuccess.Should().BeFalse();
+            result.HasErrors.Should().Contain(VendorHubResponse.VendorNameLimit);
+            _mockVendorRepository.Verify(repo => repo.CreateAsync(vendor), Times.Never);
+        }
+
+        [Fact]
+        public async Task CreateVendorAsync_InValidVendorName_ThrowValidationException()
+        {
+            // Arrange
+            var createVendorDto = VendorHubFixtures.GenerateInValidCreateVendorDto();
+
+            var vendor = _fixture.Create<Vendor>();
+
+            // Act
+            var result = await _sutVendorService.CreateAsync(createVendorDto);
+
+            // Assert
+            result.IsSuccess.Should().BeFalse();
+            result.HasErrors.Should().Contain(VendorHubResponse.VendorNameNotValid);
+            _mockVendorRepository.Verify(repo => repo.CreateAsync(vendor), Times.Never);
+        }
+
+        [Fact]
+        public async Task CreateVendorAsync_RequiredDescription_ThrowValidationException()
+        {
+            // Arrange
+            var createVendorDto = VendorHubFixtures.GenerateCreateVendorDtoWithoutDescription();
+            var vendor = _fixture.Create<Vendor>();
+
+            // Act
+            var result = await _sutVendorService.CreateAsync(createVendorDto);
+
+            // Assert
+            result.IsSuccess.Should().BeFalse();
+            result.HasErrors.Should().Contain(VendorHubResponse.VendorDescriptionRequired);
+            _mockVendorRepository.Verify(repo => repo.CreateAsync(vendor), Times.Never);
         }
 
         [Fact]
         public async Task CreateVendorAsync_DuplicateEntry_ThrowValidationException()
         {
             // Arrange
-            var createVendorDto = _fixture.Create<CreateVendorDto>();
+            var createVendorDto = VendorHubFixtures.GenerateCreateVendorDto();
 
             // Act
-            Func<Task> act = async () => await _sutVendorService.CreateVendorAsync(createVendorDto);
+            var result = await _sutVendorService.CreateAsync(createVendorDto);
 
-            await act.Should().ThrowAsync<ValidationException>()
-                .WithMessage(string.Format(VendorHubResponse.VendorAlreadyExists, createVendorDto.Name));
+            // Assert
+            result.IsSuccess.Should().BeFalse();
+            result.HasErrors.Should().Contain(VendorHubResponse.VendorAlreadyExists, createVendorDto.Name);
         }
     }
 }

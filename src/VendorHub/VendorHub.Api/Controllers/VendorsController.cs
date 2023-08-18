@@ -16,8 +16,15 @@ public class VendorsController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult CreateVendor(CreateVendorDto createVendorDto)
+    public async Task<IActionResult> CreateVendorAsync([FromBody] CreateVendorDto createVendorDto)
     {
-        throw new NotImplementedException();
+        var result = await _vendorService.CreateAsync(createVendorDto);
+
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result.HasErrors);
+        }
+
+        return CreatedAtRoute("GetVendor", new { id = result.Data.Id }, result.Data);
     }
 }

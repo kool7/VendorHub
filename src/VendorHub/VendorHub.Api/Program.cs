@@ -1,6 +1,13 @@
+using VendorHub.Api;
+using VendorHub.Application;
+using VendorHub.Infrastructure;
+
 var builder = WebApplication.CreateBuilder(args);
 {
-    builder.Services.AddControllers();
+    builder.Services
+        .AddPresentation()
+        .AddApplication()
+        .AddInfrastructure(builder.Configuration);
 }
 
 

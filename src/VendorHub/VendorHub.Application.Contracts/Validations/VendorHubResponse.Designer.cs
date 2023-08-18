@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace VendorHub.Api.Common {
+namespace VendorHub.Application.Contracts.Validations {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace VendorHub.Api.Common {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("VendorHub.Api.Common.VendorHubResponse", typeof(VendorHubResponse).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("VendorHub.Application.Contracts.Validations.VendorHubResponse", typeof(VendorHubResponse).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -75,6 +75,24 @@ namespace VendorHub.Api.Common {
         public static string VendorDescriptionRequired {
             get {
                 return ResourceManager.GetString("VendorDescriptionRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vendor name must not exceed 50 characters..
+        /// </summary>
+        public static string VendorNameLimit {
+            get {
+                return ResourceManager.GetString("VendorNameLimit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vendor name can only contain letters and numbers..
+        /// </summary>
+        public static string VendorNameNotValid {
+            get {
+                return ResourceManager.GetString("VendorNameNotValid", resourceCulture);
             }
         }
         

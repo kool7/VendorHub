@@ -2,6 +2,6 @@
 {
     public interface IVendorRepository
     {
-        Task<Vendor> AddAsync(Vendor vendor);
+        Task<Vendor> CreateAsync(Vendor vendor);
     }
 }

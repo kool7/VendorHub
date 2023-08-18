@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Mapster.DependencyInjection" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\VendorHub.Application.Contracts\VendorHub.Application.Contracts.csproj" />
     <ProjectReference Include="..\VendorHub.Domain\VendorHub.Domain.csproj" />
     <ProjectReference Include="..\VendorHub.Infrastructure\VendorHub.Infrastructure.csproj" />

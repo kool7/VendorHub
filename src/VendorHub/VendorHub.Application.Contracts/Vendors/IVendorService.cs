@@ -1,7 +1,9 @@
-﻿namespace VendorHub.Application.Contracts.Vendors
+﻿using VendorHub.Application.Contracts.Common;
+
+namespace VendorHub.Application.Contracts.Vendors
 {
     public interface IVendorService
     {
-        Task<ReadVendorDto> CreateVendorAsync(CreateVendorDto createVendorDto);
+        Task<ResultModel<ReadVendorDto>> CreateAsync(CreateVendorDto createVendorDto);
     }
 }

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using VendorHub.Api.Controllers;
-using VendorHub.Application.Contracts.Vendors;
+using VendorHub.Application.Contracts.Common;
+using VendorHub.Utils;
 
 namespace VendorHub.UnitTests.Controllers;
 
@@ -18,36 +19,60 @@ public class VendorControllerTests
     }
 
     [Fact]
-    public void CreateVendor_ValidInput_ReturnsCreatedResponse()
+    public async Task CreateVendor_Success_ReturnsCreatedResponse()
     {
         // Arrange
-        var createVendorDto = _fixture.Create<CreateVendorDto>();
-        var readVendorDto = _fixture.Create<ReadVendorDto>();
+        var createVendorDto = VendorHubFixtures.GenerateCreateVendorDto();
+        var readVendorDto = Helper.MapToDto(createVendorDto);
+        var resultModel = ResultModel<ReadVendorDto>.Success(readVendorDto);
         _mockVendorService
-            .Setup(x => x.CreateVendorAsync(createVendorDto)).ReturnsAsync(readVendorDto);
+            .Setup(x => x.CreateAsync(createVendorDto))
+            .ReturnsAsync(resultModel);
 
         // Act
-        var result = _sutVendorsController.CreateVendor(createVendorDto);
+        var result = await _sutVendorsController.CreateVendorAsync(createVendorDto);
 
         // Assert
-        result.Should().BeOfType<CreatedAtRouteResult>().Which.RouteName.Should().Be("GetVendor");
-        result.Should().BeOfType<CreatedAtRouteResult>().Which.Value.Should().Be(readVendorDto);
+        var response = result.Should().BeOfType<CreatedAtRouteResult>();
+        response.Which.RouteName.Should().Be("GetVendor");
+        response.Which.Value.Should().Be(readVendorDto);
     }
 
     [Fact]
-    public void CreateVendor_InValidInput_ReturnsBadRequestResponse()
+    public async Task CreateVendor_FailureNameRequired_ReturnsBadRequestResponse()
     {
         // Arrange
-        var inValidDto = new CreateVendorDto
-        {
-            Name = string.Empty,
-            Description = string.Empty
-        };
+        var inValidDto = VendorHubFixtures.GenerateInValidCreateVendorDto();
+        var errors = new List<string> { VendorHubResponse.VendorNameRequired };
+        _mockVendorService
+                .Setup(x => x.CreateAsync(inValidDto))
+                .ReturnsAsync(ResultModel<ReadVendorDto>.Error(errors));
 
         // Act
-        var result = _sutVendorsController.CreateVendor(inValidDto);
+        var result = await _sutVendorsController.CreateVendorAsync(inValidDto);
 
         // Assert
-        result.Should().BeOfType<BadRequestResult>();
+        result.Should().BeOfType<BadRequestObjectResult>();
+        var responseErrors = (result as BadRequestObjectResult).Value as List<string>;
+        responseErrors.Should().BeEquivalentTo(errors);
+    }
+
+    [Fact]
+    public async Task CreateVendor_FailureDescriptionRequired_ReturnsBadRequestResponse()
+    {
+        // Arrange
+        var inValidDto = VendorHubFixtures.GenerateInValidCreateVendorDto();
+        var errors = new List<string> { VendorHubResponse.VendorDescriptionRequired };
+        _mockVendorService
+                .Setup(x => x.CreateAsync(inValidDto))
+                .ReturnsAsync(ResultModel<ReadVendorDto>.Error(errors));
+
+        // Act
+        var result = await _sutVendorsController.CreateVendorAsync(inValidDto);
+
+        // Assert
+        result.Should().BeOfType<BadRequestObjectResult>();
+        var responseErrors = (result as BadRequestObjectResult).Value as List<string>;
+        responseErrors.Should().BeEquivalentTo(errors);
     }
 }

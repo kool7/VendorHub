@@ -123,6 +123,12 @@
   <data name="VendorDescriptionRequired" xml:space="preserve">
     <value>The Description field is required.</value>
   </data>
+  <data name="VendorNameLimit" xml:space="preserve">
+    <value>Vendor name must not exceed 50 characters.</value>
+  </data>
+  <data name="VendorNameNotValid" xml:space="preserve">
+    <value>Vendor name can only contain letters and numbers.</value>
+  </data>
   <data name="VendorNameRequired" xml:space="preserve">
     <value>The Name field is required.</value>
   </data>

@@ -1,9 +1,8 @@
-﻿namespace VendorHub.Application.Contracts.Vendors
-{
-    public class ReadVendorDto
-    {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-    }
-}
+﻿namespace VendorHub.Application.Contracts.Vendors;
+
+public record ReadVendorDto
+(
+    string Id,
+    string Name,
+    string Description
+);
